@@ -18,10 +18,10 @@ export default function AboutPage() {
         <div className="flex-1">
           <h1 className="text-4xl font-bold mb-4">Robbie Holland</h1>
           <p className="text-lg text-gray-600 mb-4">
-            Welcome to my personal website! I am a passionate researcher and developer with interests in various fields of computer science and mathematics.
+            I am a postdoctoral scholar in Stanford's Artificial Intelligence in Medicine and Imaging (AIMI) Center. My research focuses on developing self-supervised methods for aiding image-based clinical decision making and accelerating the discovery of new, prognostic biomarkers for disease.
           </p>
           <p className="text-lg text-gray-600 mb-6">
-            This website serves as a hub for my academic work, code repositories, and various creative projects. Feel free to explore the different sections to learn more about my work and interests.
+            I am now advancing these applications by developing foundation models that integrate longitudinal, multimodal medical data from population-scale cohorts. This website serves as a hub for my academic work, code repositories, and various creative projects.
           </p>
           <div className="flex gap-4">
             <a

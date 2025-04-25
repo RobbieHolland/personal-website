@@ -15,33 +15,43 @@ export default function CVPage() {
       </div>
 
       <div className="prose max-w-none">
-        <h2 className="text-2xl font-semibold mb-4">HTML Version</h2>
-        
         <section className="mb-6">
-          <h3 className="text-xl font-semibold mb-2">Education</h3>
-          <ul className="list-disc pl-6">
-            <li>PhD in Computer Science, University of Example, 2020-2024</li>
-            <li>MSc in Computer Science, University of Example, 2018-2020</li>
-            <li>BSc in Computer Science, University of Example, 2014-2018</li>
-          </ul>
+          <h2 className="text-2xl font-semibold mb-4">Experience</h2>
+          <div className="mb-4">
+            <h3 className="text-xl font-semibold">Stanford University</h3>
+            <p className="text-gray-600">Postdoctoral Scholar, Artificial Intelligence in Medicine and Imaging (AIMI) Center</p>
+            <p className="text-gray-500">November 2024 - Present</p>
+            <ul className="list-disc pl-6 mt-2">
+              <li>Developing self-supervised methods for image-based clinical decision making and discovery of novel prognostic biomarkers</li>
+              <li>Building foundation models integrating longitudinal abdominal CT and tabular data from population-scale cohorts</li>
+              <li>Leading the AI in Radiology journal club</li>
+            </ul>
+          </div>
         </section>
 
         <section className="mb-6">
-          <h3 className="text-xl font-semibold mb-2">Research Experience</h3>
-          <ul className="list-disc pl-6">
-            <li>Research Assistant, University of Example, 2020-2024</li>
-            <li>Research Intern, Example Lab, 2019</li>
-          </ul>
-        </section>
-
-        <section className="mb-6">
-          <h3 className="text-xl font-semibold mb-2">Skills</h3>
-          <ul className="list-disc pl-6">
-            <li>Programming Languages: Python, JavaScript, C++, Java</li>
-            <li>Web Development: React, Next.js, Node.js</li>
-            <li>Machine Learning: TensorFlow, PyTorch</li>
-            <li>Languages: English (Native), Spanish (Intermediate)</li>
-          </ul>
+          <h2 className="text-2xl font-semibold mb-4">Education</h2>
+          <div className="mb-4">
+            <h3 className="text-xl font-semibold">Imperial & King's College Medical Imaging CDT</h3>
+            <p className="text-gray-600">PhD, Medical Imaging</p>
+            <p className="text-gray-500">October 2020 - October 2024</p>
+            <ul className="list-disc pl-6 mt-2">
+              <li>Research: Representation learning for improved diagnosis and biomarker discovery in age-related macular degeneration (AMD)</li>
+              <li>Featured in RSIP Computer Vision News, November 2023 (MICCAI edition)</li>
+              <li>Distinguished Reviewer for IEEE Transactions on Medical Imaging (TMI) 2024</li>
+              <li>Research collaboration at AI in Medicine Lab, Technical University Munich (2022-2024)</li>
+            </ul>
+          </div>
+          <div className="mb-4">
+            <h3 className="text-xl font-semibold">Imperial College London</h3>
+            <p className="text-gray-600">MEng Mathematics and Computer Science</p>
+            <p className="text-gray-500">October 2015 - August 2019</p>
+            <ul className="list-disc pl-6 mt-2">
+              <li>First Class Honours in all years</li>
+              <li>Best Group Project Prize in 1st and 3rd years (2016, 2018)</li>
+              <li>Department Year Representative (2016-2018)</li>
+            </ul>
+          </div>
         </section>
       </div>
     </div>

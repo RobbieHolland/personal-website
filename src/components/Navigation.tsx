@@ -27,6 +27,9 @@ const Navigation = () => {
               <Link href="/papers" className="text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 border-transparent hover:border-gray-300">
                 Academic Papers
               </Link>
+              <Link href="/media" className="text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 border-transparent hover:border-gray-300">
+                Media
+              </Link>
               <Link href="/repositories" className="text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 border-transparent hover:border-gray-300">
                 Code Repositories
               </Link>
