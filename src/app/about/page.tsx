@@ -26,42 +26,46 @@ export default function AboutPage() {
           <p className="text-lg text-gray-600 mb-6">
             My research focuses on developing self-supervised methods for aiding image-based clinical decision making and accelerating the discovery of new, prognostic biomarkers for disease. I'm advancing these applications by developing foundation models that integrate longitudinal, multimodal medical data from population-scale cohorts.
           </p>
-          <div className="flex gap-4">
+          <div className="flex flex-col gap-4">
             <a
               href="https://www.linkedin.com/in/robbie-h/"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-600 hover:text-blue-600 transition-colors"
+              className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors"
               title="LinkedIn"
             >
               <FaLinkedin size={24} />
+              <span className="text-gray-400">LinkedIn</span>
             </a>
             <a
               href="https://github.com/RobbieHolland"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-600 hover:text-gray-900 transition-colors"
+              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
               title="GitHub"
             >
               <FaGithub size={24} />
+              <span className="text-gray-400">GitHub</span>
             </a>
             <a
               href="https://scholar.google.com/citations?user=9SerzccAAAAJ&hl=en&authuser=1"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-600 hover:text-blue-500 transition-colors"
+              className="flex items-center gap-2 text-gray-600 hover:text-blue-500 transition-colors"
               title="Google Scholar"
             >
               <AiFillGoogleCircle size={24} />
+              <span className="text-gray-400">Google Scholar</span>
             </a>
             <a
               href="https://med.stanford.edu/profiles/robert-holland"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-600 hover:text-red-600 transition-colors"
+              className="flex items-center gap-2 text-gray-600 hover:text-red-600 transition-colors"
               title="Stanford Profile"
             >
               <FaUniversity size={24} />
+              <span className="text-gray-400">Stanford Profile</span>
             </a>
           </div>
         </div>
