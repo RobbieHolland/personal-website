@@ -27,6 +27,9 @@ const Navigation = () => {
               <Link href="/papers" className="text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 border-transparent hover:border-gray-300">
                 Academic Papers
               </Link>
+              <Link href="/presentations" className="text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 border-transparent hover:border-gray-300">
+                Recorded Talks
+              </Link>
               <Link href="/media" className="text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 border-transparent hover:border-gray-300">
                 Media
               </Link>
@@ -45,6 +48,9 @@ const Navigation = () => {
                     <div className="py-1">
                       <Link href="/fun/fractals" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         Fractals
+                      </Link>
+                      <Link href="/fun/art" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        Art
                       </Link>
                       <Link href="/fun/media" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         Music and Videos

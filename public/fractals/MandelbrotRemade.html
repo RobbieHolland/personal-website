@@ -1,0 +1,190 @@
+<html>
+<canvas id="FractalCanvas" width="900" height="600" style="border:2px solid"></canvas> <br>
+<script>
+var element = document.getElementById('FractalCanvas');
+var ctx = element.getContext('2d');
+var topLeft = new bound(new CNum(-2, -1), new Coord(0,0));;
+var bottomRight = new bound(new CNum(1, 1), null);
+var mouseDownCoord, mouseUpCoord, mousePressed = false;
+// var colour = new RGB(0.8*255,0.8*99,0.8*71);
+var colour = new RGB(0.2*255,0.9*99,0.3*71);
+var portionOfScreen = 0.4;
+var imgData;
+var minIterations;
+
+//Hard coded due to Javascript being crap
+var width = Math.round(portionOfScreen * screen.height) * 3;
+var height = Math.round(portionOfScreen * screen.height) * 2;
+var heightWidthRatio = height / width;
+var set = new TwoDArray(width, height);
+
+window.load = initialise();
+function initialise() {
+  minIterations = 255;
+  element.height = height;
+  element.width = width;
+
+  console.log(minIterations);
+
+  calculateSet(set);
+  drawSet(0, 0, width, height);
+}
+
+function bound(axis, coord) {
+  this.axis = axis;
+  this.coord = coord;
+}
+
+function CNum(Re, Im){
+  this.Re = Re;
+  this.Im = Im;
+}
+
+function Coord(x, y){
+  this.x = x;
+  this.y = y;
+}
+
+function TwoDArray(x, y) {
+  var a = new Array(x);
+  //Defining array for all coordinates
+  for(var i = 0; i < x; i++){
+    a[i] = new Array(y);
+  }
+  return a;
+}
+
+FractalCanvas.onmousedown = function(e){
+  mouseDownCoord = new Coord(e.clientX - element.offsetLeft, e.clientY - element.offsetTop);
+  mousePressed = true;
+}
+
+FractalCanvas.onmousemove = function(e){
+  if (mousePressed) {
+    mouseUpCoord = new Coord(e.clientX - element.offsetLeft, e.clientY - element.offsetTop);
+
+    ctx.putImageData(imgData,0,0);
+
+    //Box fitting
+		var xDiff = (mouseUpCoord.x - mouseDownCoord.x) + 1;
+		var yDiff = (mouseUpCoord.y - mouseDownCoord.y);
+    if ((yDiff / xDiff) < heightWidthRatio) {
+			xDiff = yDiff / heightWidthRatio;
+			mouseUpCoord.x = mouseDownCoord.x + xDiff;
+		} else {
+			yDiff = heightWidthRatio * xDiff;
+			mouseUpCoord.y = mouseDownCoord.y + yDiff;
+		}
+
+    ctx.fillStyle="gray";
+		ctx.fillRect(mouseDownCoord.x, mouseDownCoord.y, xDiff, yDiff);
+    mouseUpCoord.x = mouseDownCoord.x + xDiff;
+    mouseUpCoord.y = mouseDownCoord.y + yDiff;
+
+		ctx.globalAlpha=0.2;
+		ctx.stroke();
+  }
+}
+
+FractalCanvas.onmouseup = function(e){
+  mousePressed = false;
+
+  if (mouseUpCoord.y < mouseDownCoord.y) {
+    var tempSwap = mouseDownCoord;
+    mouseDownCoord = mouseUpCoord;
+    mouseUpCoord = tempSwap;
+  }
+
+  var temptopLeft = new bound(coordinatesToAxis(mouseDownCoord), mouseDownCoord);
+  var tempbottomRight = new bound(coordinatesToAxis(mouseUpCoord), mouseUpCoord);
+
+  topLeft = temptopLeft;
+  bottomRight = tempbottomRight;
+
+  initialise();
+}
+
+document.addEventListener('keydown', function(e) {
+  //37 is back, 39 is forward
+    //console.log(e.keyCode);
+}, false);
+
+function drawSet(xStart, yStart, xEnd, yEnd){ //Goes through every coordinates, makes a 1x1 object there and sets it to black if corresponding CoordArray value is true
+	imgData = ctx.createImageData(xEnd,yEnd);
+	var i = 0;
+  var dampener = 3.3;//0.001*(width / (bottomRight.axis.Re - topLeft.axis.Re));
+
+	for(var y = yStart; y < set[0].length; y++){
+		for(var x = xStart; x < set.length; x ++){
+          set[x][y] = stretchColour(set[x][y]);
+					imgData.data[4*i+0]=Math.round((colour.red / 255)*set[x][y] * dampener);
+					imgData.data[4*i+1]=Math.round((colour.green / 255)*set[x][y] * dampener);
+					imgData.data[4*i+2]=Math.round((colour.blue / 255)*set[x][y] * dampener);
+					imgData.data[4*i+3]=200;
+			i ++;
+		}
+	}
+	ctx.putImageData(imgData,xStart,yStart);
+}
+
+function stretchColour(val) {
+  return (val - minIterations) / (1 - (minIterations / 255));
+}
+
+function RGB(red, green, blue) {
+  this.red = red;
+  this.green = green;
+  this.blue = blue;
+}
+
+function printCoord(coord) {
+	console.log("X: " + coord.x + " , Y: " + coord.y);
+}
+
+function printCNum(cnum) {
+	console.log("Re: " + cnum.Re + " , Im: " + cnum.Im);
+}
+
+function coordinatesToAxis(coordinates){
+  var scale = width / (bottomRight.axis.Re - topLeft.axis.Re);
+	return(new CNum((coordinates.x / scale) + topLeft.axis.Re
+                 ,(coordinates.y / scale) + topLeft.axis.Im));
+}
+
+function axisToCoordinates(axisCoords){
+  var scale = width / (bottomRight.axis.Re - topLeft.axis.Re);
+	return (new Coord(Math.round((axisCoords.Re - topLeft.axis.Re) * scale)
+                   ,Math.round((axisCoords.Im - topLeft.axis.Im) * scale)));
+}
+
+function calculateSet() {
+  var tempCoord, tempCNum;
+  for (var x = 0; x < set.length; x++) {
+    for (var y = 0; y < set[0].length; y++) {
+      tempCoord = new Coord(x, y);
+      tempCNum = coordinatesToAxis(tempCoord);
+      set[x][y] = iterate(tempCNum);
+      if (set[x][y] < minIterations) {
+        minIterations = set[x][y];
+      }
+    }
+  }
+  console.log("Min Iterations: " + minIterations);
+  return set;
+}
+
+function iterate(c) {
+  var tempZ = new CNum(0,0), Z = new CNum(0,0);
+  var valueLimit = 4, iterations = 0, iterationLimit = 255;
+  while((Z.Re*Z.Re+Z.Im*Z.Im) < valueLimit && iterations < iterationLimit){
+		tempZ.Re = Z.Re * Z.Re - Z.Im * Z.Im + c.Re
+		tempZ.Im = 2 * Z.Re * Z.Im + c.Im
+
+		Z.Re = tempZ.Re
+		Z.Im = tempZ.Im
+		iterations ++
+	}
+  return iterations;
+}
+</script>
+</html>

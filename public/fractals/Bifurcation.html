@@ -1,0 +1,205 @@
+<html>
+<head>
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+</head>
+<canvas id="FractalCanvas" width="900" height="600" style="border:2px solid"></canvas>
+<canvas id="MapCanvas" width="600" height="600" style="border:2px solid"></canvas> <br>
+<style>#FractalCanvas { background-color: rgba(46, 56, 66, 0.1); }</style>
+<style>#MapCanvas { background-color: rgba(46, 56, 66, 0.1); }</style>
+<script>
+var elementBifurcation = document.getElementById('FractalCanvas');
+var elementMap = document.getElementById('MapCanvas');
+var ctxBif = elementBifurcation.getContext('2d');
+var ctxMap = elementMap.getContext('2d');
+
+//Globals
+var portionOfScreen = 0.28;
+var width = Math.round(portionOfScreen * screen.height) * 3;
+var height = Math.round(portionOfScreen * screen.height) * 2;
+var heightWidthRatio = height / width;
+var set = new TwoDArray(width, height);
+var mouseUpCoord;
+var imgData = ctxBif.createImageData(width,height);
+var imgMap = ctxMap.createImageData(height,height);
+var x0 = 0.1, minR = 1.95, maxR = 3.001, minX = 0, maxX = 1.35, initialR = 2.026;
+var cobwebIterations = 100;
+
+function f(x, r) {
+  return x + r*x*(1-x);
+}
+
+function iterate(r, ITERATIONS) {
+  iterations = new Array(ITERATIONS);
+  iterations[0] = f(x0, r)
+  for (var i = 1; i < ITERATIONS; i++) {
+    iterations[i] = f(iterations[i - 1], r);
+  }
+  return iterations;
+}
+
+function calculateSet(){
+  var increment = (maxR - minR) / width;
+  var rs = new Array();
+  for (var i = minR; i < maxR; i+= increment){
+    rs.push(iterate(i, 1000));
+  }
+  return rs;
+}
+
+function calculateMap(r) {
+  var increment = (maxX - minX) / height;
+  var xk1 = new Array();
+  for (var x = minX; x < maxX; x+= increment) {
+    xk1.push(f(x, r));
+  }
+  return xk1;
+}
+
+FractalCanvas.onmousemove = function(e){
+  mouseUpCoord = new Coord(e.clientX - elementBifurcation.offsetLeft - 2, e.clientY - elementBifurcation.offsetTop);
+  updateMouseMove(mouseUpCoord);
+}
+
+function updateMouseMove(coord) {
+
+  var k;
+  ctxBif.putImageData(imgData,0,0);
+  ctxBif.beginPath()
+  ctxBif.strokeStyle="Green";
+  ctxBif.moveTo(coord.x, height);
+  ctxBif.lineTo(coord.x, 0);
+  ctxBif.stroke();
+
+  var currentR = (maxR - minR) * coord.x / (width) + minR;
+  //Outputs current value of r
+    ctxBif.font="20px Open Sans";
+    ctxBif.fillText("r = " + currentR.toFixed(3),10,height - 10);
+  imgMap = ctxMap.createImageData(height,height);
+  var set = calculateMap(currentR);
+  drawCobweb(currentR, ctxMap);
+  drawMap(set, imgMap, ctxMap);
+}
+
+//Starts script
+window.load = initialise();
+function initialise() {
+  elementBifurcation.height = height;
+  elementBifurcation.width = width;
+  elementMap.height = height;
+  elementMap.width = height;
+  drawSet(calculateSet(), imgData, ctxBif);
+  drawMap(calculateMap(2), imgMap, ctxMap);
+  updateMouseMove(new Coord(Math.round((initialR - minR) * width /(maxR - minR)), 0));
+}
+
+function Coord(x, y) {
+  this.x = x;
+  this.y = y;
+}
+
+function TwoDArray(x, y) {
+  var a = new Array(x);
+  //Defining array for all coordinates
+  for(var i = 0; i < x; i++){
+    a[i] = new Array(y);
+  }
+  return a;
+}
+
+function drawCobweb(r, ctx) {
+
+
+  var xk1 = f(x0, r), xk = x0;
+  var scale = (1/ (maxX - minX)) * height;
+
+  ctx.clearRect(0, 0, MapCanvas.width, MapCanvas.height);
+
+  drawAxis(ctx, height, height, 0.18, 30);
+
+  ctx.lineWidth=0.4;
+  ctx.beginPath();
+  ctx.strokeStyle="Green";
+
+  //Line from x axis
+  ctx.moveTo(x0 * scale, height);
+  ctx.lineTo(x0 * scale, height - x0 * scale);
+
+  for (var i = 0; i < cobwebIterations; i++) { //Cobweb
+    ctx.moveTo(xk * scale, height - xk * scale);
+    ctx.lineTo(xk * scale, height - xk1 * scale);
+    ctx.moveTo(xk * scale, height - xk1 * scale);
+    ctx.lineTo(xk1 * scale, height - xk1 * scale);
+    xk = xk1;
+    xk1 = f(xk, r);
+  }
+
+
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.setLineDash([5, 5]);
+  //Line y = x
+    ctx.moveTo(0, scale * maxX);
+    ctx.lineTo(maxX * scale, 0);
+  ctx.lineWidth=2;
+  ctx.strokeStyle="Black";
+  ctx.stroke();
+}
+
+function drawMap(set, imgMap, ctx){ //Parabola
+
+  var scalar = (1/ (maxX - minX)) * height;
+  ctx.lineWidth=2;
+  ctx.strokeStyle="Gray";
+  ctx.beginPath();
+  ctx.setLineDash([]);
+
+  for (var i = 0; i < set.length; i++) {
+      ctx.moveTo(i,Math.floor(height - (set[i] * scalar)));
+      ctx.lineTo(i+1,Math.floor(height - (set[i+1] * scalar)));
+  }
+
+  ctx.stroke();
+}
+
+function drawAxis(ctx, w, h, inc, init) {
+  ctx.beginPath();
+  ctx.setLineDash([]);
+  ctx.strokeStyle = '#fafafa';
+  for (var i = init; i < h; i += h * (inc / (maxX - minX))) {
+    ctx.moveTo(i, 0);
+    ctx.lineTo(i,h);
+    ctx.moveTo(0, i);
+    ctx.lineTo(h,i);
+  }
+  ctx.stroke();
+}
+
+function drawSet(set, imgData, ctx){ //Bifurcation
+
+
+  var currentIterate;
+  for (var i = 0; i < set.length; i++) {
+    currentIterate = set[i];
+    for (var j = currentIterate.length - 300; j < currentIterate.length; j++) {
+      //Y coordinate
+      k = Math.floor(height - (currentIterate[j] * height*0.75)) * width;
+      //X coordinate
+      k = k + i;
+
+      imgData.data[4*k+0]=46;
+      imgData.data[4*k+1]=56;
+      imgData.data[4*k+2]=66;
+      imgData.data[4*k+3]=255;
+    }
+  }
+  ctx.putImageData(imgData,0,0);
+  drawAxis(ctx, height, height, 0.18, 30);
+}
+
+function RGB(red, green, blue) {
+  this.red = red;
+  this.green = green;
+  this.blue = blue;
+}
+</script>
+</html>
