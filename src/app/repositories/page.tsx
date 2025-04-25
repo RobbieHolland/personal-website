@@ -23,7 +23,9 @@ export default function RepositoriesPage() {
           throw new Error('Failed to fetch repositories');
         }
         const data = await response.json();
-        setRepos(data);
+        // Sort repositories by stars in descending order
+        const sortedRepos = data.sort((a: Repository, b: Repository) => b.stargazers_count - a.stargazers_count);
+        setRepos(sortedRepos);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {

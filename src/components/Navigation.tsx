@@ -30,15 +30,15 @@ const Navigation = () => {
               <Link href="/repositories" className="text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 border-transparent hover:border-gray-300">
                 Code Repositories
               </Link>
-              <div className="relative">
+              <div className="relative inline-block">
                 <button
                   onClick={() => setIsFunDropdownOpen(!isFunDropdownOpen)}
-                  className="text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 border-transparent hover:border-gray-300"
+                  className="text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 border-transparent hover:border-gray-300 h-full"
                 >
                   Fun
                 </button>
                 {isFunDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                  <div className="absolute left-0 top-full mt-1 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
                     <div className="py-1">
                       <Link href="/fun/fractals" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         Fractals

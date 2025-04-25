@@ -5,7 +5,7 @@ export default function PapersPage() {
       
       <div className="mb-8">
         <a
-          href="https://scholar.google.com/citations?user=YOUR_SCHOLAR_ID"
+          href="https://scholar.google.com/citations?user=9SerzccAAAAJ&hl=en&authuser=1"
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"

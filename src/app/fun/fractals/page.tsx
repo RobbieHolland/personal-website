@@ -1,77 +1,60 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+
+interface CNum {
+  Re: number;
+  Im: number;
+}
+
+interface Coord {
+  x: number;
+  y: number;
+}
+
+interface Bound {
+  axis: CNum;
+  coord: Coord | null;
+}
+
+interface RGB {
+  red: number;
+  green: number;
+  blue: number;
+}
 
 export default function FractalsPage() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    // Set canvas size
-    canvas.width = 800;
-    canvas.height = 600;
-
-    // Draw Mandelbrot set
-    const drawMandelbrot = () => {
-      const width = canvas.width;
-      const height = canvas.height;
-      const imageData = ctx.createImageData(width, height);
-      const data = imageData.data;
-
-      for (let x = 0; x < width; x++) {
-        for (let y = 0; y < height; y++) {
-          const i = (y * width + x) * 4;
-          
-          // Map pixel coordinates to complex plane
-          const x0 = (x - width/2) / (width/4);
-          const y0 = (y - height/2) / (height/4);
-          
-          let x1 = 0;
-          let y1 = 0;
-          let iteration = 0;
-          const maxIteration = 100;
-          
-          while (x1*x1 + y1*y1 <= 4 && iteration < maxIteration) {
-            const xtemp = x1*x1 - y1*y1 + x0;
-            y1 = 2*x1*y1 + y0;
-            x1 = xtemp;
-            iteration++;
-          }
-          
-          // Color based on iteration count
-          const color = iteration === maxIteration ? 0 : iteration * 255 / maxIteration;
-          data[i] = color;     // R
-          data[i + 1] = color; // G
-          data[i + 2] = color; // B
-          data[i + 3] = 255;   // A
-        }
-      }
-      
-      ctx.putImageData(imageData, 0, 0);
-    };
-
-    drawMandelbrot();
-  }, []);
-
   return (
     <div className="max-w-4xl mx-auto">
       <h1 className="text-4xl font-bold mb-8">Fractals</h1>
       
-      <div className="bg-white rounded-lg shadow-lg p-4">
-        <canvas
-          ref={canvasRef}
-          className="w-full h-auto border border-gray-200 rounded"
-        />
-        <p className="mt-4 text-gray-600">
-          This is an interactive Mandelbrot set visualization. The fractal is generated
-          using JavaScript and rendered on an HTML5 canvas. You can zoom in and explore
-          the infinite complexity of the Mandelbrot set.
-        </p>
+      <div className="bg-gray-900 rounded-lg shadow-lg p-6">
+        <div className="mb-4">
+          <p className="text-gray-400 mb-4">
+            Click the image below to open the interactive Mandelbrot set viewer in a new tab.
+            Click and drag to zoom into different regions of the fractal.
+          </p>
+          <a
+            href="/fractal.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block mb-4"
+          >
+            <img
+              src="/mandelbot_preview.png"
+              alt="Mandelbrot Set Preview"
+              className="w-full h-auto rounded-lg border border-gray-700 cursor-pointer hover:opacity-90 transition-opacity"
+            />
+          </a>
+          <a
+            href="/fractal.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
+          >
+            Open Mandelbrot Set Viewer (Click & Drag to Zoom)
+          </a>
+        </div>
       </div>
     </div>
   );
