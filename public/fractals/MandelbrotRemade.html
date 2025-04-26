@@ -13,7 +13,6 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background-color: #000;
         }
         body {
             display: flex;
@@ -28,10 +27,6 @@
             max-width: 100%;
             max-height: 100%;
             object-fit: contain;
-            touch-action: none;
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            user-select: none;
         }
     </style>
 </head>
@@ -64,6 +59,10 @@
                 width = windowWidth;
                 height = width / 1.5;
             }
+            
+            // Set minimum dimensions
+            width = Math.max(width, 800);
+            height = Math.max(height, 533);
             
             // Set canvas dimensions
             element.width = width;
@@ -125,6 +124,10 @@
                 x = event.clientX - rect.left;
                 y = event.clientY - rect.top;
             }
+            
+            // Scale coordinates to match canvas size
+            x = x * (width / rect.width);
+            y = y * (height / rect.height);
             
             return new Coord(x, y);
         }
@@ -206,7 +209,7 @@
         function drawSet(xStart, yStart, xEnd, yEnd){
             imgData = ctx.createImageData(xEnd,yEnd);
             var i = 0;
-            var dampener = 3.3;
+            var dampener = 3.3;//0.001*(width / (bottomRight.axis.Re - topLeft.axis.Re));
 
             for(var y = yStart; y < set[0].length; y++){
                 for(var x = xStart; x < set.length; x ++){
