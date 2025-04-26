@@ -57,6 +57,21 @@ export default function FractalsPage() {
         </div>
 
         <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6">
+          <h2 className="text-2xl font-semibold mb-4">2D Physics Simulation (Java)</h2>
+          <p className="text-gray-600 mb-4">
+            Interactive Java physics simulation. Click the button below to open it in a new window.
+          </p>
+          <a
+            href="/fractals/JavaProgram.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
+          >
+            Open Physics Simulation
+          </a>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6">
           <h2 className="text-2xl font-semibold mb-4">Bifurcation Diagram</h2>
           <p className="text-gray-600 mb-4">
             Interactive visualization of the logistic map's bifurcation diagram. Move your mouse over the diagram to see how the system evolves for different parameter values.

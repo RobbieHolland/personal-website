@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Physics Simulation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f0f0;
+            padding: 20px;
+        }
+        .info {
+            max-width: 800px;
+            margin-bottom: 20px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            margin-bottom: 16px;
+        }
+        p {
+            margin-bottom: 12px;
+        }
+        .button {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+    </style>
+  </head>
+  <body>
+    <div class="info">
+        <h1>Physics Simulation Java Application</h1>
+        <p>This page contains a Java application that was originally designed to run as a desktop application using Java Swing.</p>
+        <p>Unfortunately, running Java applications in modern browsers requires conversion, and this application is experiencing compatibility issues with CheerpJ (the Java-to-WebAssembly converter).</p>
+        <p>The application is encountering a NullPointerException when initializing, which suggests it may be using features not fully supported in the browser environment.</p>
+        <p>If you'd like to use this application, you can download the JAR file and run it directly with Java on your computer:</p>
+        <a href="../programming_projects/2D_Physics_Simulation.jar" download class="button">Download JAR File</a>
+        <p style="margin-top: 20px;"><strong>Java Runtime Requirements:</strong> You'll need Java 8 or later installed on your computer to run this application.</p>
+        <p><strong>To run:</strong> After downloading, either double-click the JAR file (if your system is configured to run JAR files) or open a terminal/command prompt and type: <code>java -jar 2D_Physics_Simulation.jar</code></p>
+    </div>
+  </body>
+</html> 

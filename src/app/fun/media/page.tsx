@@ -43,7 +43,7 @@ export default function MediaPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <h1 className="text-4xl font-bold mb-8">Music and Videos</h1>
-      
+
       <div className="mb-8">
         <a
           href="https://www.youtube.com/@rapperrobb6015"
@@ -107,6 +107,26 @@ export default function MediaPage() {
           ))}
         </div>
       )}
+
+      <div className="mt-12 mb-12">
+        <h2 className="text-2xl font-bold mb-4">Spotify Playlist</h2>
+        <p className="text-gray-500 italic mb-4">
+          "Regarding Rachmaninoff's 2nd Piano Concerto: I know this concerto because it hits me to my soul. There is nothing like it, I can't explain it. I am moved and overwhelmed whenever I hear it. It's a journey to somewhere, I don't even know where. All I know is I expend every emotion along the way."
+        </p>
+        <p className="text-gray-500 text-right mb-4">- some YouTube commenter</p>
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+          <iframe 
+            style={{ borderRadius: '12px' }}
+            src="https://open.spotify.com/embed/playlist/1frm2LmCSnvOoFLWK8p1lD?utm_source=generator&theme=0"
+            width="100%"
+            height="352"
+            frameBorder="0"
+            allowFullScreen
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+            loading="lazy"
+          />
+        </div>
+      </div>
     </div>
   );
 } 
