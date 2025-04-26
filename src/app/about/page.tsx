@@ -1,18 +1,21 @@
+'use client';
+
 import Image from 'next/image';
 import { FaLinkedin, FaGithub, FaUniversity } from 'react-icons/fa';
 import { AiFillGoogleCircle } from 'react-icons/ai';
 
 export default function AboutPage() {
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto px-4">
       <div className="flex flex-col md:flex-row items-center gap-8">
-        <div className="w-48 h-48 relative rounded-full overflow-hidden">
+        <div className="w-48 h-48 relative rounded-full overflow-hidden bg-gray-200">
           <Image
             src="/profile_zoomed.jpg"
             alt="Robbie Holland"
             fill
             className="object-cover"
             priority
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         </div>
         <div className="flex-1">

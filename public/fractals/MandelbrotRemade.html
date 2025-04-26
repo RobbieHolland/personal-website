@@ -1,190 +1,270 @@
+<!DOCTYPE html>
 <html>
-<canvas id="FractalCanvas" width="900" height="600" style="border:2px solid"></canvas> <br>
-<script>
-var element = document.getElementById('FractalCanvas');
-var ctx = element.getContext('2d');
-var topLeft = new bound(new CNum(-2, -1), new Coord(0,0));;
-var bottomRight = new bound(new CNum(1, 1), null);
-var mouseDownCoord, mouseUpCoord, mousePressed = false;
-// var colour = new RGB(0.8*255,0.8*99,0.8*71);
-var colour = new RGB(0.2*255,0.9*99,0.3*71);
-var portionOfScreen = 0.4;
-var imgData;
-var minIterations;
+<head>
+    <title>Mandelbrot Fractal Viewer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #000;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            touch-action: none;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        canvas {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            touch-action: none;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="FractalCanvas"></canvas>
+    <script>
+        var element = document.getElementById('FractalCanvas');
+        var ctx = element.getContext('2d');
+        var topLeft = new bound(new CNum(-2, -1), new Coord(0,0));
+        var bottomRight = new bound(new CNum(1, 1), null);
+        var mouseDownCoord, mouseUpCoord, mousePressed = false;
+        var colour = new RGB(0.2*255,0.9*99,0.3*71);
+        var imgData;
+        var minIterations;
+        var width, height, heightWidthRatio;
+        var set;
 
-//Hard coded due to Javascript being crap
-var width = Math.round(portionOfScreen * screen.height) * 3;
-var height = Math.round(portionOfScreen * screen.height) * 2;
-var heightWidthRatio = height / width;
-var set = new TwoDArray(width, height);
+        function resizeCanvas() {
+            // Get the window dimensions
+            var windowWidth = window.innerWidth;
+            var windowHeight = window.innerHeight;
+            
+            // Calculate dimensions while maintaining 3:2 aspect ratio
+            if (windowWidth / windowHeight > 1.5) {
+                // Window is wider than 3:2
+                height = windowHeight;
+                width = height * 1.5;
+            } else {
+                // Window is taller than 3:2
+                width = windowWidth;
+                height = width / 1.5;
+            }
+            
+            // Set canvas dimensions
+            element.width = width;
+            element.height = height;
+            
+            // Update ratio
+            heightWidthRatio = height / width;
+            
+            // Recreate the set array with new dimensions
+            set = new TwoDArray(width, height);
+            
+            // Redraw the fractal
+            initialise();
+        }
 
-window.load = initialise();
-function initialise() {
-  minIterations = 255;
-  element.height = height;
-  element.width = width;
+        window.onload = function() {
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            window.addEventListener('orientationchange', resizeCanvas);
+        };
 
-  console.log(minIterations);
+        function initialise() {
+            minIterations = 255;
+            calculateSet(set);
+            drawSet(0, 0, width, height);
+        }
 
-  calculateSet(set);
-  drawSet(0, 0, width, height);
-}
+        function bound(axis, coord) {
+            this.axis = axis;
+            this.coord = coord;
+        }
 
-function bound(axis, coord) {
-  this.axis = axis;
-  this.coord = coord;
-}
+        function CNum(Re, Im){
+            this.Re = Re;
+            this.Im = Im;
+        }
 
-function CNum(Re, Im){
-  this.Re = Re;
-  this.Im = Im;
-}
+        function Coord(x, y){
+            this.x = x;
+            this.y = y;
+        }
 
-function Coord(x, y){
-  this.x = x;
-  this.y = y;
-}
+        function TwoDArray(x, y) {
+            var a = new Array(x);
+            for(var i = 0; i < x; i++){
+                a[i] = new Array(y);
+            }
+            return a;
+        }
 
-function TwoDArray(x, y) {
-  var a = new Array(x);
-  //Defining array for all coordinates
-  for(var i = 0; i < x; i++){
-    a[i] = new Array(y);
-  }
-  return a;
-}
+        function getCoordinates(event) {
+            var rect = element.getBoundingClientRect();
+            var x, y;
+            
+            if (event.touches && event.touches.length > 0) {
+                x = event.touches[0].clientX - rect.left;
+                y = event.touches[0].clientY - rect.top;
+            } else {
+                x = event.clientX - rect.left;
+                y = event.clientY - rect.top;
+            }
+            
+            return new Coord(x, y);
+        }
 
-FractalCanvas.onmousedown = function(e){
-  mouseDownCoord = new Coord(e.clientX - element.offsetLeft, e.clientY - element.offsetTop);
-  mousePressed = true;
-}
+        function handleStart(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            mouseDownCoord = getCoordinates(event);
+            mousePressed = true;
+            return false;
+        }
 
-FractalCanvas.onmousemove = function(e){
-  if (mousePressed) {
-    mouseUpCoord = new Coord(e.clientX - element.offsetLeft, e.clientY - element.offsetTop);
+        function handleMove(event) {
+            if (!mousePressed) return;
+            
+            event.preventDefault();
+            event.stopPropagation();
+            
+            mouseUpCoord = getCoordinates(event);
 
-    ctx.putImageData(imgData,0,0);
+            ctx.putImageData(imgData,0,0);
 
-    //Box fitting
-		var xDiff = (mouseUpCoord.x - mouseDownCoord.x) + 1;
-		var yDiff = (mouseUpCoord.y - mouseDownCoord.y);
-    if ((yDiff / xDiff) < heightWidthRatio) {
-			xDiff = yDiff / heightWidthRatio;
-			mouseUpCoord.x = mouseDownCoord.x + xDiff;
-		} else {
-			yDiff = heightWidthRatio * xDiff;
-			mouseUpCoord.y = mouseDownCoord.y + yDiff;
-		}
+            var xDiff = (mouseUpCoord.x - mouseDownCoord.x) + 1;
+            var yDiff = (mouseUpCoord.y - mouseDownCoord.y);
+            if ((yDiff / xDiff) < heightWidthRatio) {
+                xDiff = yDiff / heightWidthRatio;
+                mouseUpCoord.x = mouseDownCoord.x + xDiff;
+            } else {
+                yDiff = heightWidthRatio * xDiff;
+                mouseUpCoord.y = mouseDownCoord.y + yDiff;
+            }
 
-    ctx.fillStyle="gray";
-		ctx.fillRect(mouseDownCoord.x, mouseDownCoord.y, xDiff, yDiff);
-    mouseUpCoord.x = mouseDownCoord.x + xDiff;
-    mouseUpCoord.y = mouseDownCoord.y + yDiff;
+            ctx.fillStyle="gray";
+            ctx.fillRect(mouseDownCoord.x, mouseDownCoord.y, xDiff, yDiff);
+            mouseUpCoord.x = mouseDownCoord.x + xDiff;
+            mouseUpCoord.y = mouseDownCoord.y + yDiff;
 
-		ctx.globalAlpha=0.2;
-		ctx.stroke();
-  }
-}
+            ctx.globalAlpha=0.2;
+            ctx.stroke();
+            
+            return false;
+        }
 
-FractalCanvas.onmouseup = function(e){
-  mousePressed = false;
+        function handleEnd(event) {
+            if (!mousePressed) return;
+            
+            event.preventDefault();
+            event.stopPropagation();
+            mousePressed = false;
 
-  if (mouseUpCoord.y < mouseDownCoord.y) {
-    var tempSwap = mouseDownCoord;
-    mouseDownCoord = mouseUpCoord;
-    mouseUpCoord = tempSwap;
-  }
+            if (mouseUpCoord.y < mouseDownCoord.y) {
+                var tempSwap = mouseDownCoord;
+                mouseDownCoord = mouseUpCoord;
+                mouseUpCoord = tempSwap;
+            }
+            
+            var temptopLeft = new bound(coordinatesToAxis(mouseDownCoord), mouseDownCoord);
+            var tempbottomRight = new bound(coordinatesToAxis(mouseUpCoord), mouseUpCoord);
+            
+            topLeft = temptopLeft;
+            bottomRight = tempbottomRight;
+            
+            initialise();
+            return false;
+        }
 
-  var temptopLeft = new bound(coordinatesToAxis(mouseDownCoord), mouseDownCoord);
-  var tempbottomRight = new bound(coordinatesToAxis(mouseUpCoord), mouseUpCoord);
+        // Mouse events
+        FractalCanvas.onmousedown = handleStart;
+        FractalCanvas.onmousemove = handleMove;
+        FractalCanvas.onmouseup = handleEnd;
+        FractalCanvas.onmouseleave = handleEnd;
 
-  topLeft = temptopLeft;
-  bottomRight = tempbottomRight;
+        // Touch events
+        FractalCanvas.addEventListener('touchstart', handleStart, { passive: false });
+        FractalCanvas.addEventListener('touchmove', handleMove, { passive: false });
+        FractalCanvas.addEventListener('touchend', handleEnd, { passive: false });
+        FractalCanvas.addEventListener('touchcancel', handleEnd, { passive: false });
 
-  initialise();
-}
+        function drawSet(xStart, yStart, xEnd, yEnd){
+            imgData = ctx.createImageData(xEnd,yEnd);
+            var i = 0;
+            var dampener = 3.3;
 
-document.addEventListener('keydown', function(e) {
-  //37 is back, 39 is forward
-    //console.log(e.keyCode);
-}, false);
+            for(var y = yStart; y < set[0].length; y++){
+                for(var x = xStart; x < set.length; x ++){
+                    set[x][y] = stretchColour(set[x][y]);
+                    imgData.data[4*i+0]=Math.round((colour.red / 255)*set[x][y] * dampener);
+                    imgData.data[4*i+1]=Math.round((colour.green / 255)*set[x][y] * dampener);
+                    imgData.data[4*i+2]=Math.round((colour.blue / 255)*set[x][y] * dampener);
+                    imgData.data[4*i+3]=200;
+                    i++;
+                }
+            }
+            ctx.putImageData(imgData,xStart,yStart);
+        }
 
-function drawSet(xStart, yStart, xEnd, yEnd){ //Goes through every coordinates, makes a 1x1 object there and sets it to black if corresponding CoordArray value is true
-	imgData = ctx.createImageData(xEnd,yEnd);
-	var i = 0;
-  var dampener = 3.3;//0.001*(width / (bottomRight.axis.Re - topLeft.axis.Re));
+        function stretchColour(val) {
+            return (val - minIterations) / (1 - (minIterations / 255));
+        }
 
-	for(var y = yStart; y < set[0].length; y++){
-		for(var x = xStart; x < set.length; x ++){
-          set[x][y] = stretchColour(set[x][y]);
-					imgData.data[4*i+0]=Math.round((colour.red / 255)*set[x][y] * dampener);
-					imgData.data[4*i+1]=Math.round((colour.green / 255)*set[x][y] * dampener);
-					imgData.data[4*i+2]=Math.round((colour.blue / 255)*set[x][y] * dampener);
-					imgData.data[4*i+3]=200;
-			i ++;
-		}
-	}
-	ctx.putImageData(imgData,xStart,yStart);
-}
+        function RGB(red, green, blue) {
+            this.red = red;
+            this.green = green;
+            this.blue = blue;
+        }
 
-function stretchColour(val) {
-  return (val - minIterations) / (1 - (minIterations / 255));
-}
+        function coordinatesToAxis(coordinates){
+            var scale = width / (bottomRight.axis.Re - topLeft.axis.Re);
+            return(new CNum((coordinates.x / scale) + topLeft.axis.Re,
+                          (coordinates.y / scale) + topLeft.axis.Im));
+        }
 
-function RGB(red, green, blue) {
-  this.red = red;
-  this.green = green;
-  this.blue = blue;
-}
+        function calculateSet() {
+            var tempCoord, tempCNum;
+            for (var x = 0; x < set.length; x++) {
+                for (var y = 0; y < set[0].length; y++) {
+                    tempCoord = new Coord(x, y);
+                    tempCNum = coordinatesToAxis(tempCoord);
+                    set[x][y] = iterate(tempCNum);
+                    if (set[x][y] < minIterations) {
+                        minIterations = set[x][y];
+                    }
+                }
+            }
+            return set;
+        }
 
-function printCoord(coord) {
-	console.log("X: " + coord.x + " , Y: " + coord.y);
-}
+        function iterate(c) {
+            var tempZ = new CNum(0,0), Z = new CNum(0,0);
+            var valueLimit = 4, iterations = 0, iterationLimit = 255;
+            while((Z.Re*Z.Re+Z.Im*Z.Im) < valueLimit && iterations < iterationLimit){
+                tempZ.Re = Z.Re * Z.Re - Z.Im * Z.Im + c.Re
+                tempZ.Im = 2 * Z.Re * Z.Im + c.Im
 
-function printCNum(cnum) {
-	console.log("Re: " + cnum.Re + " , Im: " + cnum.Im);
-}
-
-function coordinatesToAxis(coordinates){
-  var scale = width / (bottomRight.axis.Re - topLeft.axis.Re);
-	return(new CNum((coordinates.x / scale) + topLeft.axis.Re
-                 ,(coordinates.y / scale) + topLeft.axis.Im));
-}
-
-function axisToCoordinates(axisCoords){
-  var scale = width / (bottomRight.axis.Re - topLeft.axis.Re);
-	return (new Coord(Math.round((axisCoords.Re - topLeft.axis.Re) * scale)
-                   ,Math.round((axisCoords.Im - topLeft.axis.Im) * scale)));
-}
-
-function calculateSet() {
-  var tempCoord, tempCNum;
-  for (var x = 0; x < set.length; x++) {
-    for (var y = 0; y < set[0].length; y++) {
-      tempCoord = new Coord(x, y);
-      tempCNum = coordinatesToAxis(tempCoord);
-      set[x][y] = iterate(tempCNum);
-      if (set[x][y] < minIterations) {
-        minIterations = set[x][y];
-      }
-    }
-  }
-  console.log("Min Iterations: " + minIterations);
-  return set;
-}
-
-function iterate(c) {
-  var tempZ = new CNum(0,0), Z = new CNum(0,0);
-  var valueLimit = 4, iterations = 0, iterationLimit = 255;
-  while((Z.Re*Z.Re+Z.Im*Z.Im) < valueLimit && iterations < iterationLimit){
-		tempZ.Re = Z.Re * Z.Re - Z.Im * Z.Im + c.Re
-		tempZ.Im = 2 * Z.Re * Z.Im + c.Im
-
-		Z.Re = tempZ.Re
-		Z.Im = tempZ.Im
-		iterations ++
-	}
-  return iterations;
-}
-</script>
+                Z.Re = tempZ.Re
+                Z.Im = tempZ.Im
+                iterations++
+            }
+            return iterations;
+        }
+    </script>
+</body>
 </html>

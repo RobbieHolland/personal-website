@@ -76,7 +76,7 @@ export default function MediaPage() {
                   <div className="md:w-2/3">
                     <h3 className="text-xl font-medium">How Good Conversation Benefits From Data Compression</h3>
                     <p className="text-gray-600">Technology Networks - Last Updated: March 18, 2022</p>
-                    <p className="text-gray-600 mt-2">Exploring the parallels between data compression techniques and effective communication in scientific discourse.</p>
+                    <p className="text-gray-600 mt-2">Exploring the parallels between data compression techniques and the feeling of having a good chat.</p>
                   </div>
                 </div>
               </a>

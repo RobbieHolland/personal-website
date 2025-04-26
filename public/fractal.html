@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Mandelbrot Fractal Viewer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
         body {
             margin: 0;
@@ -11,14 +12,27 @@
             flex-direction: column;
             align-items: center;
             font-family: Arial, sans-serif;
+            touch-action: none;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
         }
         canvas {
             border: 2px solid #333;
             background-color: #000;
             margin-bottom: 20px;
+            touch-action: none;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
         }
         .controls {
             margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+            max-width: 600px;
         }
         button {
             padding: 8px 16px;
@@ -32,11 +46,56 @@
         button:hover {
             background-color: #45a049;
         }
+        .coord-inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+        }
+        .coord-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .coord-group label {
+            min-width: 100px;
+        }
+        input[type="number"] {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            flex: 1;
+        }
+        .instructions {
+            margin-bottom: 10px;
+            text-align: center;
+            color: #666;
+        }
     </style>
 </head>
 <body>
+    <div class="instructions">Enter coordinates and click Zoom to focus on that area</div>
     <canvas id="FractalCanvas" width="900" height="600"></canvas>
     <div class="controls">
+        <div class="coord-inputs">
+            <div class="coord-group">
+                <label>Top Left X:</label>
+                <input type="number" id="topLeftX" value="-2" step="0.1">
+            </div>
+            <div class="coord-group">
+                <label>Top Left Y:</label>
+                <input type="number" id="topLeftY" value="-1" step="0.1">
+            </div>
+            <div class="coord-group">
+                <label>Bottom Right X:</label>
+                <input type="number" id="bottomRightX" value="1" step="0.1">
+            </div>
+            <div class="coord-group">
+                <label>Bottom Right Y:</label>
+                <input type="number" id="bottomRightY" value="1" step="0.1">
+            </div>
+        </div>
+        <button onclick="handleZoom()">Zoom</button>
         <button onclick="resetView()">Reset View</button>
     </div>
     <script>
@@ -70,6 +129,26 @@
         function resetView() {
             topLeft = new bound(new CNum(-2, -1), new Coord(0,0));
             bottomRight = new bound(new CNum(1, 1), null);
+            document.getElementById('topLeftX').value = -2;
+            document.getElementById('topLeftY').value = -1;
+            document.getElementById('bottomRightX').value = 1;
+            document.getElementById('bottomRightY').value = 1;
+            initialise();
+        }
+
+        function handleZoom() {
+            const topLeftX = parseFloat(document.getElementById('topLeftX').value);
+            const topLeftY = parseFloat(document.getElementById('topLeftY').value);
+            const bottomRightX = parseFloat(document.getElementById('bottomRightX').value);
+            const bottomRightY = parseFloat(document.getElementById('bottomRightY').value);
+
+            if (isNaN(topLeftX) || isNaN(topLeftY) || isNaN(bottomRightX) || isNaN(bottomRightY)) {
+                alert('Please enter valid numbers for all coordinates');
+                return;
+            }
+
+            topLeft = new bound(new CNum(topLeftX, topLeftY), new Coord(0,0));
+            bottomRight = new bound(new CNum(bottomRightX, bottomRightY), null);
             initialise();
         }
 
@@ -96,38 +175,65 @@
             return a;
         }
 
-        FractalCanvas.onmousedown = function(e){
-            mouseDownCoord = new Coord(e.clientX - element.offsetLeft, e.clientY - element.offsetTop);
-            mousePressed = true;
-        }
-
-        FractalCanvas.onmousemove = function(e){
-            if (mousePressed) {
-                mouseUpCoord = new Coord(e.clientX - element.offsetLeft, e.clientY - element.offsetTop);
-
-                ctx.putImageData(imgData,0,0);
-
-                var xDiff = (mouseUpCoord.x - mouseDownCoord.x) + 1;
-                var yDiff = (mouseUpCoord.y - mouseDownCoord.y);
-                if ((yDiff / xDiff) < heightWidthRatio) {
-                    xDiff = yDiff / heightWidthRatio;
-                    mouseUpCoord.x = mouseDownCoord.x + xDiff;
-                } else {
-                    yDiff = heightWidthRatio * xDiff;
-                    mouseUpCoord.y = mouseDownCoord.y + yDiff;
-                }
-
-                ctx.fillStyle="gray";
-                ctx.fillRect(mouseDownCoord.x, mouseDownCoord.y, xDiff, yDiff);
-                mouseUpCoord.x = mouseDownCoord.x + xDiff;
-                mouseUpCoord.y = mouseDownCoord.y + yDiff;
-
-                ctx.globalAlpha=0.2;
-                ctx.stroke();
+        function getCoordinates(event) {
+            var rect = element.getBoundingClientRect();
+            var x, y;
+            
+            if (event.touches && event.touches.length > 0) {
+                x = event.touches[0].clientX - rect.left;
+                y = event.touches[0].clientY - rect.top;
+            } else {
+                x = event.clientX - rect.left;
+                y = event.clientY - rect.top;
             }
+            
+            return new Coord(x, y);
         }
 
-        FractalCanvas.onmouseup = function(e){
+        function handleStart(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            mouseDownCoord = getCoordinates(event);
+            mousePressed = true;
+            return false;
+        }
+
+        function handleMove(event) {
+            if (!mousePressed) return;
+            
+            event.preventDefault();
+            event.stopPropagation();
+            
+            mouseUpCoord = getCoordinates(event);
+
+            ctx.putImageData(imgData,0,0);
+
+            var xDiff = (mouseUpCoord.x - mouseDownCoord.x) + 1;
+            var yDiff = (mouseUpCoord.y - mouseDownCoord.y);
+            if ((yDiff / xDiff) < heightWidthRatio) {
+                xDiff = yDiff / heightWidthRatio;
+                mouseUpCoord.x = mouseDownCoord.x + xDiff;
+            } else {
+                yDiff = heightWidthRatio * xDiff;
+                mouseUpCoord.y = mouseDownCoord.y + yDiff;
+            }
+
+            ctx.fillStyle="gray";
+            ctx.fillRect(mouseDownCoord.x, mouseDownCoord.y, xDiff, yDiff);
+            mouseUpCoord.x = mouseDownCoord.x + xDiff;
+            mouseUpCoord.y = mouseDownCoord.y + yDiff;
+
+            ctx.globalAlpha=0.2;
+            ctx.stroke();
+            
+            return false;
+        }
+
+        function handleEnd(event) {
+            if (!mousePressed) return;
+            
+            event.preventDefault();
+            event.stopPropagation();
             mousePressed = false;
 
             if (mouseUpCoord.y < mouseDownCoord.y) {
@@ -135,15 +241,34 @@
                 mouseDownCoord = mouseUpCoord;
                 mouseUpCoord = tempSwap;
             }
-
+            
             var temptopLeft = new bound(coordinatesToAxis(mouseDownCoord), mouseDownCoord);
             var tempbottomRight = new bound(coordinatesToAxis(mouseUpCoord), mouseUpCoord);
-
+            
             topLeft = temptopLeft;
             bottomRight = tempbottomRight;
-
+            
+            // Update input fields with new coordinates
+            document.getElementById('topLeftX').value = topLeft.axis.Re.toFixed(2);
+            document.getElementById('topLeftY').value = topLeft.axis.Im.toFixed(2);
+            document.getElementById('bottomRightX').value = bottomRight.axis.Re.toFixed(2);
+            document.getElementById('bottomRightY').value = bottomRight.axis.Im.toFixed(2);
+            
             initialise();
+            return false;
         }
+
+        // Mouse events
+        FractalCanvas.onmousedown = handleStart;
+        FractalCanvas.onmousemove = handleMove;
+        FractalCanvas.onmouseup = handleEnd;
+        FractalCanvas.onmouseleave = handleEnd;
+
+        // Touch events
+        FractalCanvas.addEventListener('touchstart', handleStart, { passive: false });
+        FractalCanvas.addEventListener('touchmove', handleMove, { passive: false });
+        FractalCanvas.addEventListener('touchend', handleEnd, { passive: false });
+        FractalCanvas.addEventListener('touchcancel', handleEnd, { passive: false });
 
         function drawSet(xStart, yStart, xEnd, yEnd){
             imgData = ctx.createImageData(xEnd,yEnd);
