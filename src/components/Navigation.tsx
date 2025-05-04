@@ -51,11 +51,14 @@ const Navigation = () => {
                       <Link href="/fun/fractals" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         Fractals
                       </Link>
-                      <Link href="/fun/art" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        Art
-                      </Link>
                       <Link href="/fun/media" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         Music and Videos
+                      </Link>
+                      <Link href="/fun/book-movie-ratings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        Book and Movie Ratings
+                      </Link>
+                      <Link href="/fun/art" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        Art
                       </Link>
                       <Link href="/fun/blog" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         Emerging Thoughts Blog
@@ -157,18 +160,25 @@ const Navigation = () => {
                 Fractals
               </Link>
               <Link
-                href="/fun/art"
-                className="block px-4 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Art
-              </Link>
-              <Link
                 href="/fun/media"
                 className="block px-4 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Music and Videos
+              </Link>
+              <Link
+                href="/fun/book-movie-ratings"
+                className="block px-4 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Book and Movie Ratings
+              </Link>
+              <Link
+                href="/fun/art"
+                className="block px-4 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Art
               </Link>
               <Link
                 href="/fun/blog"

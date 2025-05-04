@@ -9,7 +9,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    // Fetch oEmbed data
+    // Fetch oEmbed data for basic info
     const oembedResponse = await fetch(
       `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`
     );
@@ -20,26 +20,30 @@ export async function GET(request: Request) {
 
     const oembedData = await oembedResponse.json();
 
-    // Fetch video page to get description and date
-    const videoPageResponse = await fetch(
-      `https://www.youtube.com/watch?v=${videoId}`
-    );
-    const videoPageHtml = await videoPageResponse.text();
-    
-    // Extract description from meta tags
-    const descriptionMatch = videoPageHtml.match(/<meta name="description" content="([^"]+)"/);
-    const description = descriptionMatch ? descriptionMatch[1] : '';
+    // Fetch detailed video info using YouTube Data API
+    const apiKey = process.env.YOUTUBE_API_KEY;
+    if (!apiKey) {
+      throw new Error('YouTube API key is not configured');
+    }
 
-    // Extract publish date
-    const dateMatch = videoPageHtml.match(/"publishDate":"([^"]+)"/);
-    const publishDate = dateMatch ? dateMatch[1] : '';
+    const apiResponse = await fetch(
+      `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${apiKey}`
+    );
+
+    if (!apiResponse.ok) {
+      throw new Error('Failed to fetch video details');
+    }
+
+    const apiData = await apiResponse.json();
+    const videoDetails = apiData.items[0]?.snippet;
 
     return NextResponse.json({
       ...oembedData,
-      description,
-      publishDate
+      description: videoDetails?.description || '',
+      publishDate: videoDetails?.publishedAt || ''
     });
   } catch (error) {
+    console.error('YouTube API error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch video information' },
       { status: 500 }
